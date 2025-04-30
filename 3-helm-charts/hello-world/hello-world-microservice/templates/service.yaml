@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hello-world-microservice
-  namespace: microservices
+  namespace: hello-world
   labels:
     app: hello-world-microservice
 spec:

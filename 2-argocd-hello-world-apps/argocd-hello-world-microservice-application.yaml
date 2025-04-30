@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1  # Definiert die API-Version für ArgoCD-Ressourcen
 kind: Application  # Gibt an, dass dies eine ArgoCD Application-Ressource ist
 metadata:
-  name: app-hello-world-microservice  # Name der Anwendung
-  namespace: argocd  # Namespace, in dem die Application-Ressource erstellt wird
+  name: hello-world-microservice  # Name der Anwendung
+  namespace: argocd  # Namespace, in dem die Application-Ressource erstellt wird (muss argocd sein)
 spec:
   project: default  # Projekt, zu dem die Anwendung gehört
   source:
     repoURL: https://github.com/MarkusJackson/azure-apps-gitops.git  # URL des Git-Repositories
     targetRevision: HEAD  # Revision des Repositories (HEAD = neueste Version)
-    path: 3-helm-charts/hello-world/hello-world-microservice  # Angepasster Pfad zum Helm Chart
+    path: 3-helm-charts/hello-world/hello-world-microservice  # Pfad im Repository, wo das Helm Chart liegt
     helm:
       releaseName: hello-world  # Name des Helm Releases
   destination:
     server: https://kubernetes.default.svc  # Ziel-Cluster (lokaler Cluster)
-    namespace: default  # Ziel-Namespace für die bereitgestellten Ressourcen
+    namespace: hello-world  # Ziel-Namespace für die bereitgestellten Ressourcen (Pods, Services, Ingress)
   syncPolicy:
     automated: {}  # Automatische Synchronisierung
     syncOptions:
