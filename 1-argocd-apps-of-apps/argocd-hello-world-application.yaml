@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1  # Definiert die API-Version für ArgoCD-Ressourcen
+kind: Application  # Gibt an, dass dies eine ArgoCD Application-Ressource ist
+metadata:
+  name: hello-world  # Name der App-of-Apps-Anwendung für Hello World
+  namespace: argocd  # Namespace, in dem die Application-Ressource erstellt wird
+spec:
+  project: default  # Projekt, zu dem die Anwendung gehört
+  source:
+    repoURL: https://github.com/MarkusJackson/azure-apps-gitops.git  # URL des Git-Repositories
+    targetRevision: HEAD  # Revision des Repositories (HEAD = neueste Version)
+    path: 2-argocd-hello-world-apps  # Pfad im Repository, wo die untergeordneten Application-Ressourcen liegen
+  destination:
+    server: https://kubernetes.default.svc  # Ziel-Cluster (lokaler Cluster)
+    namespace: argocd  # Ziel-Namespace für die Application-Ressourcen
+  syncPolicy:
+    automated: {}  # Automatische Synchronisierung
+    syncOptions:
+      - CreateNamespace=true  # Erstellt den Ziel-Namespace, falls er nicht existiert
