@@ -5,41 +5,35 @@ metadata:
   namespace: tekton-pipelines
 spec:
   params:
-    - name: pipeline-name
-      description: The name of the pipeline to run
-    - name: image
-      description: The target image name
     - name: git-url
-      description: The Git repository URL
     - name: git-revision
-      description: The Git revision to checkout
-      default: main
-    - name: context-path
-      description: The path to the project directory within the workspace
-      default: .
-    - name: dockerfile-path
-      description: The path to the Dockerfile relative to the context path
-      default: Dockerfile
+    - name: image-url
+    - name: image-tag
+    - name: deployment-name
+    - name: namespace
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
       metadata:
-        generateName: $(tt.params.pipeline-name)-run-
+        generateName: build-hello-world-run-
       spec:
         pipelineRef:
-          name: $(tt.params.pipeline-name)
+          name: build-hello-world
         params:
-          - name: image
-            value: $(tt.params.image)
           - name: git-url
             value: $(tt.params.git-url)
           - name: git-revision
             value: $(tt.params.git-revision)
-          - name: context-path
-            value: $(tt.params.context-path)
-          - name: dockerfile-path
-            value: $(tt.params.dockerfile-path)
+          - name: image-url
+            value: $(tt.params.image-url)
+          - name: image-tag
+            value: $(tt.params.image-tag)
+          - name: deployment-name
+            value: $(tt.params.deployment-name)
+          - name: namespace
+            value: $(tt.params.namespace)
         workspaces:
           - name: source
-            persistentVolumeClaim:
-              claimName: source-pvc
+            emptyDir: {}
+        serviceAccountName: tekton-build
+        ttlSecondsAfterFinished: 3600

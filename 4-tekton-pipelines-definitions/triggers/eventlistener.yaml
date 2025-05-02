@@ -1,22 +1,16 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: EventListener
 metadata:
-  name: generic-pipeline-listener
+  name: github-listener
   namespace: tekton-pipelines
 spec:
-  serviceAccountName: tekton-builder
+  serviceAccountName: tekton-build
   triggers:
-    - name: github-push
+    - name: github-push-trigger
       bindings:
-        - ref: github-push-binding
+        - ref: github-push-trigger-binding 
       template:
         ref: pipeline-trigger-template
-      params:
-        - name: pipeline-name
-          value: $(body.repository.name)-pipeline
-        - name: image
-          value: docker.io/<dein-benutzer>/$(body.repository.name):latest
-        - name: context-path
-          value: $(body.repository.name)
-        - name: dockerfile-path
-          value: Dockerfile
+  resources:
+    kubernetesResource:
+      serviceType: ClusterIP

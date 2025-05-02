@@ -1,36 +1,36 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: build-and-push-task
-  namespace: tekton
+  name: build-and-push
+  namespace: tekton-pipelines
 spec:
   params:
-    - name: image
+    - name: git-url  # URL des Git-Repositories
       type: string
-      description: The target image name (e.g., docker.io/<username>/<microservice>:latest)
-    - name: context-path
+    - name: git-revision  # Revision (z. B. Branch) des Repositories
       type: string
-      description: The path to the project directory within the workspace
-      default: .
-    - name: dockerfile-path
+      default: "main"
+    - name: image-url  # URL des Images in der Container Registry (z. B. docker.io/markusjackson/hello-world-microservice)
       type: string
-      description: The path to the Dockerfile relative to the context path
-      default: Dockerfile
+    - name: image-tag  # Tag des Images
+      type: string
+      default: "latest"
+    - name: context-dir  # Verzeichnis im Repository, wo das Dockerfile liegt
+      type: string
+      default: "."
   workspaces:
-    - name: source
-      description: The workspace containing the source code
+    - name: source  # Arbeitsbereich für den Quellcode
   steps:
-    - name: build
-      image: maven:3.8-openjdk-11
-      workingDir: /workspace/source/$(params.context-path)
+    - name: clone  # Schritt 1: Klonen des Quellcodes
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.40.2
       script: |
-        mvn clean package
-    - name: build-and-push-image
+        /ko-app/git-init -url=$(params.git-url) -revision=$(params.git-revision) -path=/workspace/source
+    - name: build-and-push  # Schritt 2: Bauen und Pushen des Images
       image: gcr.io/kaniko-project/executor:latest
+      env:
+        - name: DOCKER_CONFIG  # Verzeichnis für Docker-Zugangsdaten
+          value: /tekton/home/.docker
       args:
-        - "--context=/workspace/source/$(params.context-path)"
-        - "--dockerfile=/workspace/source/$(params.context-path)/$(params.dockerfile-path)"
-        - "--destination=$(params.image)"
-        - "--cache=true"
-      securityContext:
-        runAsUser: 0
+        - --context=/workspace/source/$(params.context-dir)
+        - --destination=$(params.image-url):$(params.image-tag)
+        - --dockerfile=/workspace/source/$(params.context-dir)/Dockerfile

@@ -1,0 +1,19 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: github-push-binding
+  namespace: tekton-pipelines
+spec:
+  params:
+    - name: git-url
+      value: $(body.repository.clone_url)
+    - name: git-revision
+      value: $(body.head_commit.id)
+    - name: image-url
+      value: "docker.io/markusjackson/hello-world-microservice"
+    - name: image-tag
+      value: "v$(body.head_commit.id)"
+    - name: deployment-name
+      value: "hello-world"
+    - name: namespace
+      value: "hello-world"
